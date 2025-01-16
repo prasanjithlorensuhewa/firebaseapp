@@ -1,0 +1,100 @@
+/* General Container */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  /* Card for Inputs and Buttons */
+  .auth-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+  
+  /* Title */
+  .auth-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* Inputs */
+  .auth-input {
+    margin: 10px 0;
+    padding: 10px 15px; /* Added left and right padding */
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+  }
+  
+  /* Buttons Container */
+  .auth-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Buttons */
+  .auth-button {
+    padding: 10px 15px; /* Added left and right padding */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+  }
+  
+  .auth-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .auth-button-google {
+    background-color: #db4437; /* Google Red */
+  }
+  
+  .auth-button-google:hover {
+    background-color: #c23321;
+  }
+  
+  .auth-button-logout {
+    background-color: #6c757d; /* Gray */
+  }
+  
+  .auth-button-logout:hover {
+    background-color: #5a6268;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .auth-card {
+      padding: 15px;
+    }
+  
+    .auth-title {
+      font-size: 20px;
+    }
+  
+    .auth-input {
+      font-size: 14px;
+    }
+  
+    .auth-button {
+      font-size: 14px;
+    }
+  }
+  
