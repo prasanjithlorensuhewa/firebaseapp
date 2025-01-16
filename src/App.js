@@ -1,29 +1,20 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { Auth } from "./components/auth";
-import { db, auth } from "./config/firebase";
-import { useState, useMemo, useEffect } from "react";
-import {
-  getDocs,
-  collection,
-  addDoc,
-  deleteDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import MovieForm from "./components/MovieForm";
+import MovieList from "./components/MovieList";
+import { useEffect, useState, useMemo } from "react";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "./config/firebase";
+import { Container, Typography, Box, IconButton } from "@mui/material";
+import { auth } from "./config/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 function App() {
   const [movieList, setMovieList] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // New Movie States
-  const [newMovieTitle, setNewMovieTitle] = useState("");
-  const [newReleaseDate, setNewReleaseDate] = useState(0);
-  const [isNewMovieOscar, setIsNewMovieOscar] = useState(false);
-
-  // Update Title State
-  const[updatedTitle, setUpdatedTitle] = useState("");
-
-  const moviesCollectionRef = useMemo(() => collection(db, "movies"), [db]);
+  const moviesCollectionRef = useMemo(() => collection(db, "movies"), []);
 
   const getMovieList = async () => {
     try {
@@ -38,72 +29,67 @@ function App() {
     }
   };
 
-  const onSubmitMovie = async () => {
+  const handleLogout = async () => {
     try {
-      await addDoc(moviesCollectionRef, {
-        title: newMovieTitle,
-        releaseDate: newReleaseDate,
-        receivedAnOscar: isNewMovieOscar,
-        userId: auth?.currentUser?.uid,
-      });
-      getMovieList(); // Now `getMovieList` is accessible here
+      await signOut(auth);
     } catch (err) {
-      console.error(err);
+      console.error("Logout failed!", err);
     }
   };
 
-  const deleteMovie = async (id) => {
-    const movieDoc = doc(db, "movies", id);
-    await deleteDoc(movieDoc);
-    getMovieList(); // Refresh movie list after deletion
-  };
-
-  const updateMovieTitle = async (id) => {
-    const movieDoc = doc(db, "movies", id);
-    await updateDoc(movieDoc, {title: updatedTitle});
-    getMovieList(); // Refresh movie list after deletion
-  };
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+    });
+  }, []);
 
   useEffect(() => {
-    console.log("Database content changed");
-    getMovieList(); // Fetch movies on component mount
-  }, [moviesCollectionRef]);
+    if (isLoggedIn) {
+      getMovieList();
+    }
+  }, [isLoggedIn, moviesCollectionRef]);
 
   return (
-    <div className="App">
-      <Auth />
-      <div>
-        <input
-          placeholder="Movie title..."
-          onChange={(e) => setNewMovieTitle(e.target.value)}
-        />
-        <input
-          placeholder="Release Date..."
-          type="number"
-          onChange={(e) => setNewReleaseDate(Number(e.target.value))}
-        />
-        <input
-          type="checkbox"
-          checked={isNewMovieOscar}
-          onChange={(e) => setIsNewMovieOscar(e.target.checked)}
-        />
-        <label>Received an Oscar</label>
-        <button onClick={onSubmitMovie}>Submit Movie</button>
-      </div>
-      <div>
-        {movieList.map((movie) => (
-          <div key={movie.id}>
-            <h1 style={{ color: movie.receivedAnOscar ? "green" : "red" }}>
-              {movie.title}
-            </h1>
-            <p>Date: {movie.releaseDate}</p>
-            <button onClick={() => deleteMovie(movie.id)}>Delete Movie</button>
-            <input placeholder="new title..." onChange={(e) => setUpdatedTitle(e.target.value)}/>
-            <button onClick={() => updateMovieTitle(movie.id)}>Update Title</button>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Container>
+      <Box position="relative">
+      <Typography
+          variant="h3"
+          align="center"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+            color: "#007BFF",
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+            fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
+          }}
+        >
+          🎥 Movie Management App 🎬
+        </Typography>
+        
+        {isLoggedIn && (
+          <IconButton
+            color="secondary"
+            aria-label="logout"
+            onClick={handleLogout}
+            style={{ position: "absolute", top: 10, right: 10 }}
+          >
+            <LogoutIcon />
+          </IconButton>
+        )}
+
+        {!isLoggedIn && <Auth/>}
+      </Box>
+
+      {isLoggedIn && (
+        <Box mt={4}>
+          <MovieForm
+            moviesCollectionRef={moviesCollectionRef}
+            refreshMovies={getMovieList}
+          />
+          <MovieList movieList={movieList} refreshMovies={getMovieList} />
+        </Box>
+      )}
+    </Container>
   );
 }
 
